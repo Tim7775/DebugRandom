@@ -1,0 +1,9 @@
+{
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "[lua][luau]": {
+    "editor.defaultFormatter": "JohnnyMorganz.stylua",
+    "editor.formatOnSave": true,
+  },
+  "stylua.searchBinaryInPATH": true,
+}
