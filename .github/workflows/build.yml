@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install tools using Rokit
+        uses: CompeyDev/setup-rokit@v0.1.2
+        with:
+          cache: true
+
+      - name: Build Roblox model
+        run: rojo build default.project.json -o DebugRandom.rbxm
+
+      - name: Upload Roblox model as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: roblox-model
+          path: DebugRandom.rbxm
+          if-no-files-found: error
