@@ -1,2 +1,5 @@
 std = "roblox"
 exclude = ["**/node_modules/**"]
+
+[config]
+global_usage = { ignore_pattern = "^__" }
