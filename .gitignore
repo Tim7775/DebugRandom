@@ -21,5 +21,7 @@ Thumbs.db
 
 # Moonwave build
 /build/
+# Wally packages
+/DevPackages/
 # Npm dependencies
 node_modules/

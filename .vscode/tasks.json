@@ -10,5 +10,14 @@
         "isDefault": true,
       },
     },
+    {
+      "type": "shell",
+      "label": "Test",
+      "command": "lune run tests",
+      "group": {
+        "kind": "test",
+        "isDefault": true,
+      },
+    },
   ],
 }

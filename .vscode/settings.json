@@ -10,4 +10,6 @@
     "editor.formatOnSave": true,
   },
   "stylua.searchBinaryInPATH": true,
+  "luau-lsp.sourcemap.rojoProjectFile": "test.project.json",
+  "luau-lsp.types.definitionFiles": [".vscode/definitions/testez.d.luau"],
 }

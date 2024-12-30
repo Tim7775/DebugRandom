@@ -1,5 +1,5 @@
-std = "roblox"
-exclude = ["**/node_modules/**"]
+std = "selene-requires+testez"
+exclude = ["**/node_modules/**", "DevPackages/**", "*.d.luau"]
 
 [config]
 global_usage = { ignore_pattern = "^__" }
