@@ -1,6 +1,10 @@
 {
   "files.eol": "\n",
   "files.insertFinalNewline": true,
+  "[typescript][json][jsonc][yaml][github-actions-workflow][markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+  },
   "[lua][luau]": {
     "editor.defaultFormatter": "JohnnyMorganz.stylua",
     "editor.formatOnSave": true,

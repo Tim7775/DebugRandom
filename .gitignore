@@ -21,3 +21,5 @@ Thumbs.db
 
 # Moonwave build
 /build/
+# Npm dependencies
+node_modules/
