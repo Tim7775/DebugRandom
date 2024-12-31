@@ -31,8 +31,6 @@ local LUAU_MAX_PRECISE_INT = 2 ^ 53 - 1
 local LUAU_MIN_PRECISE_INT = -2 ^ 53 + 1
 
 --[=[
-	@class DebugRandom
-	@__index prototype
 	A wrapper around Roblox's [Random](https://create.roblox.com/docs/reference/engine/datatypes/Random) class
 	that enables users to serialize and set the state of the Random object.
 
@@ -40,8 +38,8 @@ local LUAU_MIN_PRECISE_INT = -2 ^ 53 + 1
 	- Added [DebugRandom.deserialize]
 	- Added [DebugRandom.fromString]
 	- Added [DebugRandom.isDebugRandom]
-	- Added property ClassName
-	- DebugRandom:__tostring yields a serialized result instead of "Random"
+	- Added property [ClassName](DebugRandom#ClassName)
+	- [DebugRandom:__tostring] yields a serialized result instead of "Random"
 	- Added [DebugRandom:Serialize]
 	- Added [DebugRandom:SetSerializedState]
 	- Added [DebugRandom:CopyStateFrom]
@@ -50,6 +48,9 @@ local LUAU_MIN_PRECISE_INT = -2 ^ 53 + 1
 	Example use:
 	Serialize a random number generator's state when an error occurs, so the error can be replicated
 	using [DebugRandom:SetSerializedState] and [DebugRandom.deserialize].
+
+	@class DebugRandom
+	@__index prototype
 ]=]
 --[=[
 	@within DebugRandom
@@ -73,9 +74,9 @@ DebugRandom.metatable = {
 }
 
 --[=[
-	@within DebugRandom
-
 	Returns a new DebugRandom object.
+
+	@within DebugRandom
 ]=]
 function DebugRandom.interface.new(seed: number?): DebugRandom
 	if seed == nil then
@@ -98,7 +99,6 @@ function DebugRandom.interface.new(seed: number?): DebugRandom
 end
 
 --[=[
-	@within DebugRandom
 	Deserializes a string into a DebugRandom object. The string should have come from the `DebugRandom:__tostring()` metamethod.
 	```lua
 	local rng = DebugRandom.new()
@@ -108,6 +108,8 @@ end
 	local rngClone = DebugRandom.fromString(str)
 	assert(rngClone == rng)
 	```
+
+	@within DebugRandom
 ]=]
 function DebugRandom.interface.fromString(data: string): DebugRandom
 	local className, seed, numCount, intCount =
@@ -121,32 +123,34 @@ function DebugRandom.interface.fromString(data: string): DebugRandom
 end
 
 --[=[
+	Returns `true` if `obj` is a DebugRandom.
+
 	@within DebugRandom
 	@param obj any
 	@return boolean
-
-	Returns `true` if `obj` is a DebugRandom.
 ]=]
 function DebugRandom.interface.isDebugRandom(obj: any)
 	return type(obj) == "table" and rawget(obj, RNG) ~= nil
 end
 
 --[=[
+	This metamethod tests for `self` and `other` values to be equal and is used by the operators `==` and `~=`.
+
 	@within DebugRandom
 	@method __eq
 	@param other DebugRandom
 	@return boolean
-	This metamethod tests for `self` and `other` values to be equal and is used by the operators `==` and `~=`.
 ]=]
 function DebugRandom.metatable.__eq(self: DebugRandom, other: DebugRandom)
 	return self[RNG] == other[RNG]
 end
 
 --[=[
+	This metamethod serializes `self` and transforms it into a string.
+
 	@within DebugRandom
 	@method __tostring
 	@return string
-	This metamethod serializes `self` and transforms it into a string.
 ]=]
 function DebugRandom.metatable.__tostring(self: DebugRandom)
 	if self[Seed] ~= self[Seed] then
@@ -157,24 +161,24 @@ function DebugRandom.metatable.__tostring(self: DebugRandom)
 end
 
 --[=[
+	Returns a clone of DebugRandom's internal Random object.
+
 	@within DebugRandom
 	@method CloneRandom
 	@return Random
-
-	Returns a clone of DebugRandom's internal Random object.
 ]=]
 function DebugRandom.prototype.CloneRandom(self: DebugRandom): Random
 	return self[RNG]:Clone()
 end
 
 --[=[
+	Returns a pseudorandom integer uniformly distributed over [min, max].
+
 	@within DebugRandom
 	@method NextInteger
 	@param min number
 	@param max number
 	@return number
-
-	Returns a pseudorandom integer uniformly distributed over [min, max].
 ]=]
 function DebugRandom.prototype.NextInteger(self: DebugRandom, min: number, max: number): number
 	local num = self[RNG]:NextInteger(min, max)
@@ -184,23 +188,23 @@ function DebugRandom.prototype.NextInteger(self: DebugRandom, min: number, max: 
 end
 
 --[=[
+	Returns a pseudorandom number uniformly distributed over [0, 1).
+
 	@within DebugRandom
 	@method NextNumber
 	@return number
-
-	Returns a pseudorandom number uniformly distributed over [0, 1).
 ]=]
 --[=[
+	Returns a pseudorandom number uniformly distributed over [min, max).
+
 	@within DebugRandom
 	@method NextNumber
 	@param min number
 	@param max number
 	@return number
-
-	Returns a pseudorandom number uniformly distributed over [min, max).
 ]=]
 function DebugRandom.prototype.NextNumber(self: DebugRandom, ...: number): number
-	--Passing a parameter pack to Random:NextNumber is necessary to ensure consistent behaviour
+	--Passing a parameter pack to Random:NextNumber is necessary to ensure consistent behavior
 	--between DebugRandom:NextNumber and Random:NextNumber. Random:NextNumber is a C function
 	--with non-standard behavior (e.g. it throws when called with nil instead of void).
 	local num = self[RNG]:NextNumber(...)
@@ -209,15 +213,15 @@ function DebugRandom.prototype.NextNumber(self: DebugRandom, ...: number): numbe
 end
 
 --[=[
-	@within DebugRandom
-	@method Shuffle
-	@param tb table
-
 	Uniformly shuffles the array part of tb in-place using NextInteger to pick indices. If there are any nil "holes" in the array part of the table, Shuffle throws an error, since shuffling could change the length.
 
 	The hash part of tb is ignored. No metamethods of tb are invoked.
 
 	The shuffle is defined to be a Fisher-Yates shuffle so the number of NextInteger calls is guaranteed to be consistent between engine versions for a given size of table.
+
+	@within DebugRandom
+	@method Shuffle
+	@param tb table
 ]=]
 function DebugRandom.prototype.Shuffle(self: DebugRandom, tb: { any }): ()
 	self[RNG]:Shuffle(tb)
@@ -225,11 +229,11 @@ function DebugRandom.prototype.Shuffle(self: DebugRandom, tb: { any }): ()
 end
 
 --[=[
+	Returns a unit vector with a pseudorandom direction. Vectors returned from this function are uniformly distributed over the unit sphere.
+
 	@within DebugRandom
 	@method NextUnitVector
 	@return number
-
-	Returns a unit vector with a pseudorandom direction. Vectors returned from this function are uniformly distributed over the unit sphere.
 ]=]
 function DebugRandom.prototype.NextUnitVector(self: DebugRandom): Vector3
 	local num = self[RNG]:NextUnitVector()
@@ -238,11 +242,11 @@ function DebugRandom.prototype.NextUnitVector(self: DebugRandom): Vector3
 end
 
 --[=[
+	Returns a new DebugRandom object with the same state as the original.
+
 	@within DebugRandom
 	@method Clone
 	@return DebugRandom
-
-	Returns a new DebugRandom object with the same state as the original.
 ]=]
 function DebugRandom.prototype.Clone(self: DebugRandom): DebugRandom
 	local clone: { [any]: any } = {
@@ -266,11 +270,11 @@ type SerializedDebugRandom = {
 }
 
 --[=[
+	Returns a serialized version of the DebugRandom.
+
 	@within DebugRandom
 	@method Serialize
 	@return SerializedDebugRandom
-
-	Returns a serialized version of the DebugRandom.
 ]=]
 function DebugRandom.prototype.Serialize(self: DebugRandom): SerializedDebugRandom
 	return {
@@ -282,11 +286,11 @@ function DebugRandom.prototype.Serialize(self: DebugRandom): SerializedDebugRand
 end
 
 --[=[
-	@within DebugRandom
-	@param data SerializedDebugRandom
-
 	Deserializes the data into a DebugRandom object. This data should have come from
 	the `DebugRandom:Serialize()` method.
+
+	@within DebugRandom
+	@param data SerializedDebugRandom
 ]=]
 function DebugRandom.interface.deserialize(data: SerializedDebugRandom): DebugRandom
 	assert(
@@ -309,12 +313,12 @@ function DebugRandom.interface.deserialize(data: SerializedDebugRandom): DebugRa
 end
 
 --[=[
+	Set the DebugRandom's state. This state should have come from
+	the `DebugRandom:Serialize()` method.
+
 	@within DebugRandom
 	@method SetSerializedState
 	@param data SerializedDebugRandom
-
-	Set the DebugRandom's state. This state should have come from
-	the `DebugRandom:Serialize()` method.
 ]=]
 function DebugRandom.prototype.SetSerializedState(self: DebugRandom, data: SerializedDebugRandom)
 	assert(
@@ -334,11 +338,11 @@ function DebugRandom.prototype.SetSerializedState(self: DebugRandom, data: Seria
 end
 
 --[=[
+	Set the state of the calling DebugRandom to the state of the `other` DebugRandom.
+
 	@within DebugRandom
 	@method CopyStateFrom
 	@param other DebugRandom
-
-	Set the state of the calling DebugRandom to the state of the `other` DebugRandom.
 ]=]
 function DebugRandom.prototype.CopyStateFrom(self: DebugRandom, other: DebugRandom): ()
 	assert(DebugRandom.interface.isDebugRandom(other), "param 'other' must be a valid DebugRandom")
