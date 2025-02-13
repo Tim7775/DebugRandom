@@ -194,6 +194,7 @@ end
 	@method NextNumber
 	@return number
 ]=]
+type NextNumber = (self: DebugRandom) -> number
 --[=[
 	Returns a pseudorandom number uniformly distributed over [min, max).
 
@@ -203,14 +204,13 @@ end
 	@param max number
 	@return number
 ]=]
-function DebugRandom.prototype.NextNumber(self: DebugRandom, ...: number): number
-	--Passing a parameter pack to Random:NextNumber is necessary to ensure consistent behavior
-	--between DebugRandom:NextNumber and Random:NextNumber. Random:NextNumber is a C function
-	--with non-standard behavior (e.g. it throws when called with nil instead of void).
+type NextNumberBounded = (self: DebugRandom, min: number, max: number) -> number
+DebugRandom.prototype.NextNumber = function(self: DebugRandom, ...: number): number
+	--Handle Random:NextNumber overloads correctly by passing a parameter pack (e.g. throw when called with nil instead of void)
 	local num = self[RNG]:NextNumber(...)
 	self[NumCount] += 1
 	return num
-end
+end :: NextNumber & NextNumberBounded
 
 --[=[
 	Uniformly shuffles the array part of tb in-place using NextInteger to pick indices. If there are any nil "holes" in the array part of the table, Shuffle throws an error, since shuffling could change the length.
