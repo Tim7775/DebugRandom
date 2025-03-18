@@ -2,6 +2,7 @@
 name = "tim7775/debug-random"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
+exclude = ["build", "sourcemap.json", "node_modules", "package.json", "package-lock.json", "**/*.ts"]
 realm = "shared"
 private = true
 

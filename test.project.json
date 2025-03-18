@@ -7,7 +7,7 @@
       "DevPackages": {
         "$path": "DevPackages",
         "DebugRandom": {
-          "$path": "default.project.json"
+          "$path": "src"
         }
       }
     },
