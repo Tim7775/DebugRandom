@@ -1,5 +1,36 @@
 {
+  "author": "Tim7775",
+  "bugs": {
+    "url": "https://github.com/Tim7775/DebugRandom/issues"
+  },
+  "description": "A wrapper around Roblox's Random class that enables users to serialize and set the state of the Random object",
+  "files": [
+    "src/*",
+    "!src/*.spec.luau"
+  ],
+  "homepage": "https://tim7775.github.io/DebugRandom/api/DebugRandom",
+  "keywords": [
+    "debug",
+    "random",
+    "roblox",
+    "roblox-ts"
+  ],
+  "license": "MIT",
+  "main": "src/init.luau",
+  "name": "@rbxts/debug-random",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tim7775/DebugRandom.git"
+  },
+  "scripts": {},
+  "types": "src/index.d.ts",
+  "version": "1.0.0",
   "devDependencies": {
-    "prettier": "3.4.2"
+    "prettier": "3.5.3",
+    "@rbxts/types": "^1.0.843",
+    "@rbxts/compiler-types": "^3.0.0-types.0"
   }
 }
