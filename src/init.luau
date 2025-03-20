@@ -1,6 +1,6 @@
 --!strict
 --[[
-	* Copyright (c) 2024 Tim7775
+	* Copyright (c) 2025 Tim7775
 	* Licensed under the MIT License (the "License");
 	* you may not use this file except in compliance with the License.
 	* You may obtain a copy of the License at
@@ -100,6 +100,8 @@ end
 
 --[=[
 	Deserializes a string into a DebugRandom object. The string should have come from the `DebugRandom:__tostring()` metamethod.
+
+	**Usage:**
 	```lua
 	local rng = DebugRandom.new()
 	print(rng:NextNumber())
@@ -161,7 +163,7 @@ function DebugRandom.metatable.__tostring(self: DebugRandom)
 end
 
 --[=[
-	Returns a clone of DebugRandom's internal Random object.
+	Returns a clone of the DebugRandom's internal Random object.
 
 	@within DebugRandom
 	@method CloneRandom
@@ -181,10 +183,10 @@ end
 	@return number
 ]=]
 function DebugRandom.prototype.NextInteger(self: DebugRandom, min: number, max: number): number
-	local num = self[RNG]:NextInteger(min, max)
+	local int = self[RNG]:NextInteger(min, max)
 	--Increment IntCount after calling NextInteger, so errors in NextInteger won't result in an invalid state
 	self[IntCount] += 1
-	return num
+	return int
 end
 
 --[=[
@@ -233,12 +235,12 @@ end
 
 	@within DebugRandom
 	@method NextUnitVector
-	@return number
+	@return Vector3
 ]=]
 function DebugRandom.prototype.NextUnitVector(self: DebugRandom): Vector3
-	local num = self[RNG]:NextUnitVector()
+	local vector = self[RNG]:NextUnitVector()
 	self[NumCount] += 1
-	return num
+	return vector
 end
 
 --[=[
