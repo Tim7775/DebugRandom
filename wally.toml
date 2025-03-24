@@ -1,10 +1,11 @@
 [package]
 name = "tim7775/debug-random"
-version = "0.1.0"
+version = "1.0.0"
 registry = "https://github.com/UpliftGames/wally-index"
 exclude = ["build", "sourcemap.json", "node_modules", "package.json", "package-lock.json", "**/*.ts"]
+homepage = "https://tim7775.github.io/DebugRandom/api/DebugRandom"
+repository = "https://github.com/Tim7775/DebugRandom"
 realm = "shared"
-private = true
 
 [dev-dependencies]
 TestEZ = "roblox/testez@0.4.1"
