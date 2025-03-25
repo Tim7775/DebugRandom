@@ -1,7 +1,7 @@
 [package]
 name = "tim7775/debug-random"
 description = "A wrapper around Roblox's Random class that enables users to serialize and set the state of the Random object"
-version = "1.0.0"
+version = "1.0.1"
 registry = "https://github.com/UpliftGames/wally-index"
 exclude = ["*"]
 include = ["src", "src/init.luau", "src/init.spec.luau", "default.project.json", "LICENSE.md", "README.md", "wally.toml"]
