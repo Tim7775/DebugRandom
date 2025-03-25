@@ -25,7 +25,9 @@
     "type": "git",
     "url": "git+https://github.com/Tim7775/DebugRandom.git"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "lune run tests"
+  },
   "types": "src/index.d.ts",
   "version": "1.0.0",
   "devDependencies": {
