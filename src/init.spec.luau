@@ -130,6 +130,33 @@ return function()
 			expect(rng1:NextNumber() == rng2:NextNumber()).to.equal(true)
 			expect(rng1:NextInteger(1, 999999) == rng2:NextInteger(1, 999999)).to.equal(true)
 		end)
+		fuzzIt("should be cable of setting the state of existing DebugRandom objects", function(seedValue)
+			local rng1 = DebugRandom.new(seedValue)
+			local rng2 = rng1:Clone()
+			for _i = 1, math.random(0, 3) do
+				rng1:NextNumber()
+			end
+			for _i = 1, math.random(0, 3) do
+				rng2:NextNumber()
+			end
+			for _i = 1, math.random(0, 3) do
+				rng1:NextInteger(1, 5)
+			end
+			for _i = 1, math.random(0, 3) do
+				rng2:NextInteger(1, 5)
+			end
+			rng2:SetSerializedState(rng1:Serialize())
+			expect(rng1).to.equal(rng2)
+
+			local rng3 = DebugRandom.new()
+			rng3:CopyStateFrom(rng2)
+			expect(rng2).to.equal(rng3)
+			for _i = 1, math.random(1, 10) do
+				doRandomEquivalentOperation(rng1, rng3)
+			end
+			expect(rng2).never.to.equal(rng3)
+			expect(rng1).to.equal(rng3)
+		end)
 	end)
 	describe("NextUnitVector", function()
 		fuzzIt("should affect internal state in the same way as calling NextNumber", function(seedValue)
