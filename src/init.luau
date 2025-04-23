@@ -327,15 +327,26 @@ function DebugRandom.prototype.SetSerializedState(self: DebugRandom, data: Seria
 		type(data) == "table" and rawget(data, "ClassName") == "DebugRandom",
 		"Invalid data for deserializing DebugRandom"
 	)
-	self[Seed] = data.Seed
-	self[NumCount] = data.NumCount
-	self[IntCount] = data.IntCount
-	self[RNG] = Random.new(data.Seed)
-	for _ = 1, data.NumCount do
-		self[RNG]:NextNumber()
-	end
-	for _ = 1, data.IntCount do
-		self[RNG]:NextInteger(0, 1)
+	if self[Seed] == data.Seed and self[NumCount] <= data.NumCount and self[IntCount] <= data.IntCount then
+		for _ = 1, data.NumCount - self[NumCount] do
+			self[RNG]:NextNumber()
+		end
+		self[NumCount] = data.NumCount
+		for _ = 1, data.IntCount - self[IntCount] do
+			self[RNG]:NextInteger(0, 1)
+		end
+		self[IntCount] = data.IntCount
+	else
+		self[Seed] = data.Seed
+		self[NumCount] = data.NumCount
+		self[IntCount] = data.IntCount
+		self[RNG] = Random.new(data.Seed)
+		for _ = 1, data.NumCount do
+			self[RNG]:NextNumber()
+		end
+		for _ = 1, data.IntCount do
+			self[RNG]:NextInteger(0, 1)
+		end
 	end
 end
 
