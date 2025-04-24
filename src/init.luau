@@ -74,6 +74,17 @@ DebugRandom.metatable = {
 }
 
 --[=[
+	Returns `true` if `obj` is a DebugRandom.
+
+	@within DebugRandom
+	@param obj any
+	@return boolean
+]=]
+function DebugRandom.interface.isDebugRandom(obj: any)
+	return type(obj) == "table" and rawget(obj, RNG) ~= nil
+end
+
+--[=[
 	Returns a new DebugRandom object.
 
 	@within DebugRandom
@@ -95,6 +106,44 @@ function DebugRandom.interface.new(seed: number?): DebugRandom
 		[IntCount] = 0,
 		[RNG] = Random.new(seed),
 	}
+	return setmetatable(self :: {}, DebugRandom.metatable)
+end
+
+--[=[
+	@within DebugRandom
+	@type SerializedDebugRandom {ClassName: "DebugRandom", Seed: number, NumCount: number, IntCount: number,}
+]=]
+type SerializedDebugRandom = {
+	ClassName: "DebugRandom",
+	Seed: number,
+	NumCount: number,
+	IntCount: number,
+}
+
+--[=[
+	Deserializes the data into a DebugRandom object. This data should have come from
+	the `DebugRandom:Serialize()` method.
+
+	@within DebugRandom
+	@param data SerializedDebugRandom
+]=]
+function DebugRandom.interface.deserialize(data: SerializedDebugRandom): DebugRandom
+	assert(
+		type(data) == "table" and rawget(data, "ClassName") == "DebugRandom",
+		"Invalid data for deserializing DebugRandom"
+	)
+	local self: { [any]: any } = {
+		[Seed] = data.Seed,
+		[NumCount] = data.NumCount,
+		[IntCount] = data.IntCount,
+		[RNG] = Random.new(data.Seed),
+	}
+	for _ = 1, data.NumCount do
+		self[RNG]:NextNumber()
+	end
+	for _ = 1, data.IntCount do
+		self[RNG]:NextInteger(0, 1)
+	end
 	return setmetatable(self :: {}, DebugRandom.metatable)
 end
 
@@ -125,29 +174,6 @@ function DebugRandom.interface.fromString(data: string): DebugRandom
 end
 
 --[=[
-	Returns `true` if `obj` is a DebugRandom.
-
-	@within DebugRandom
-	@param obj any
-	@return boolean
-]=]
-function DebugRandom.interface.isDebugRandom(obj: any)
-	return type(obj) == "table" and rawget(obj, RNG) ~= nil
-end
-
---[=[
-	This metamethod tests for `self` and `other` values to be equal and is used by the operators `==` and `~=`.
-
-	@within DebugRandom
-	@method __eq
-	@param other DebugRandom
-	@return boolean
-]=]
-function DebugRandom.metatable.__eq(self: DebugRandom, other: DebugRandom)
-	return self[RNG] == other[RNG]
-end
-
---[=[
 	This metamethod serializes `self` and transforms it into a string.
 
 	@within DebugRandom
@@ -163,113 +189,16 @@ function DebugRandom.metatable.__tostring(self: DebugRandom)
 end
 
 --[=[
-	Returns a clone of the DebugRandom's internal Random object.
+	This metamethod tests for `self` and `other` values to be equal and is used by the operators `==` and `~=`.
 
 	@within DebugRandom
-	@method CloneRandom
-	@return Random
+	@method __eq
+	@param other DebugRandom
+	@return boolean
 ]=]
-function DebugRandom.prototype.CloneRandom(self: DebugRandom): Random
-	return self[RNG]:Clone()
+function DebugRandom.metatable.__eq(self: DebugRandom, other: DebugRandom)
+	return self[RNG] == other[RNG]
 end
-
---[=[
-	Returns a pseudorandom integer uniformly distributed over [min, max].
-
-	@within DebugRandom
-	@method NextInteger
-	@param min number
-	@param max number
-	@return number
-]=]
-function DebugRandom.prototype.NextInteger(self: DebugRandom, min: number, max: number): number
-	local int = self[RNG]:NextInteger(min, max)
-	--Increment IntCount after calling NextInteger, so errors in NextInteger won't result in an invalid state
-	self[IntCount] += 1
-	return int
-end
-
---[=[
-	Returns a pseudorandom number uniformly distributed over [0, 1).
-
-	@within DebugRandom
-	@method NextNumber
-	@return number
-]=]
-type NextNumber = (self: DebugRandom) -> number
---[=[
-	Returns a pseudorandom number uniformly distributed over [min, max).
-
-	@within DebugRandom
-	@method NextNumber
-	@param min number
-	@param max number
-	@return number
-]=]
-type NextNumberBounded = (self: DebugRandom, min: number, max: number) -> number
-DebugRandom.prototype.NextNumber = function(self: DebugRandom, ...: number): number
-	--Handle Random:NextNumber overloads correctly by passing a parameter pack (e.g. throw when called with nil instead of void)
-	local num = self[RNG]:NextNumber(...)
-	self[NumCount] += 1
-	return num
-end :: NextNumber & NextNumberBounded
-
---[=[
-	Uniformly shuffles the array part of tb in-place using NextInteger to pick indices. If there are any nil "holes" in the array part of the table, Shuffle throws an error, since shuffling could change the length.
-
-	The hash part of tb is ignored. No metamethods of tb are invoked.
-
-	The shuffle is defined to be a Fisher-Yates shuffle so the number of NextInteger calls is guaranteed to be consistent between engine versions for a given size of table.
-
-	@within DebugRandom
-	@method Shuffle
-	@param tb table
-]=]
-function DebugRandom.prototype.Shuffle(self: DebugRandom, tb: { any }): ()
-	self[RNG]:Shuffle(tb)
-	self[IntCount] += #tb - 1
-end
-
---[=[
-	Returns a unit vector with a pseudorandom direction. Vectors returned from this function are uniformly distributed over the unit sphere.
-
-	@within DebugRandom
-	@method NextUnitVector
-	@return Vector3
-]=]
-function DebugRandom.prototype.NextUnitVector(self: DebugRandom): Vector3
-	local vector = self[RNG]:NextUnitVector()
-	self[NumCount] += 1
-	return vector
-end
-
---[=[
-	Returns a new DebugRandom object with the same state as the original.
-
-	@within DebugRandom
-	@method Clone
-	@return DebugRandom
-]=]
-function DebugRandom.prototype.Clone(self: DebugRandom): DebugRandom
-	local clone: { [any]: any } = {
-		[Seed] = self[Seed],
-		[NumCount] = self[NumCount],
-		[IntCount] = self[IntCount],
-		[RNG] = self[RNG]:Clone(),
-	}
-	return setmetatable(clone :: {}, DebugRandom.metatable)
-end
-
---[=[
-	@within DebugRandom
-	@type SerializedDebugRandom {ClassName: "DebugRandom", Seed: number, NumCount: number, IntCount: number,}
-]=]
-type SerializedDebugRandom = {
-	ClassName: "DebugRandom",
-	Seed: number,
-	NumCount: number,
-	IntCount: number,
-}
 
 --[=[
 	Returns a serialized version of the DebugRandom.
@@ -285,33 +214,6 @@ function DebugRandom.prototype.Serialize(self: DebugRandom): SerializedDebugRand
 		NumCount = self[NumCount],
 		IntCount = self[IntCount],
 	}
-end
-
---[=[
-	Deserializes the data into a DebugRandom object. This data should have come from
-	the `DebugRandom:Serialize()` method.
-
-	@within DebugRandom
-	@param data SerializedDebugRandom
-]=]
-function DebugRandom.interface.deserialize(data: SerializedDebugRandom): DebugRandom
-	assert(
-		type(data) == "table" and rawget(data, "ClassName") == "DebugRandom",
-		"Invalid data for deserializing DebugRandom"
-	)
-	local self: { [any]: any } = {
-		[Seed] = data.Seed,
-		[NumCount] = data.NumCount,
-		[IntCount] = data.IntCount,
-		[RNG] = Random.new(data.Seed),
-	}
-	for _ = 1, data.NumCount do
-		self[RNG]:NextNumber()
-	end
-	for _ = 1, data.IntCount do
-		self[RNG]:NextInteger(0, 1)
-	end
-	return setmetatable(self :: {}, DebugRandom.metatable)
 end
 
 --[=[
@@ -363,6 +265,104 @@ function DebugRandom.prototype.CopyStateFrom(self: DebugRandom, other: DebugRand
 	self[NumCount] = other[NumCount]
 	self[IntCount] = other[IntCount]
 	self[RNG] = other[RNG]:Clone()
+end
+
+--[=[
+	Returns a pseudorandom integer uniformly distributed over [min, max].
+
+	@within DebugRandom
+	@method NextInteger
+	@param min number
+	@param max number
+	@return number
+]=]
+function DebugRandom.prototype.NextInteger(self: DebugRandom, min: number, max: number): number
+	local int = self[RNG]:NextInteger(min, max)
+	--Increment IntCount after calling NextInteger, so errors in NextInteger won't result in an invalid state
+	self[IntCount] += 1
+	return int
+end
+
+--[=[
+	Returns a pseudorandom number uniformly distributed over [0, 1).
+
+	@within DebugRandom
+	@method NextNumber
+	@return number
+]=]
+type NextNumber = (self: DebugRandom) -> number
+--[=[
+	Returns a pseudorandom number uniformly distributed over [min, max).
+
+	@within DebugRandom
+	@method NextNumber
+	@param min number
+	@param max number
+	@return number
+]=]
+type NextNumberBounded = (self: DebugRandom, min: number, max: number) -> number
+DebugRandom.prototype.NextNumber = function(self: DebugRandom, ...: number): number
+	--Handle Random:NextNumber overloads correctly by passing a parameter pack (e.g. throw when called with nil instead of void)
+	local num = self[RNG]:NextNumber(...)
+	self[NumCount] += 1
+	return num
+end :: NextNumber & NextNumberBounded
+
+--[=[
+	Returns a unit vector with a pseudorandom direction. Vectors returned from this function are uniformly distributed over the unit sphere.
+
+	@within DebugRandom
+	@method NextUnitVector
+	@return Vector3
+]=]
+function DebugRandom.prototype.NextUnitVector(self: DebugRandom): Vector3
+	local vector = self[RNG]:NextUnitVector()
+	self[NumCount] += 1
+	return vector
+end
+
+--[=[
+	Uniformly shuffles the array part of tb in-place using NextInteger to pick indices. If there are any nil "holes" in the array part of the table, Shuffle throws an error, since shuffling could change the length.
+
+	The hash part of tb is ignored. No metamethods of tb are invoked.
+
+	The shuffle is defined to be a Fisher-Yates shuffle so the number of NextInteger calls is guaranteed to be consistent between engine versions for a given size of table.
+
+	@within DebugRandom
+	@method Shuffle
+	@param tb table
+]=]
+function DebugRandom.prototype.Shuffle(self: DebugRandom, tb: { any }): ()
+	self[RNG]:Shuffle(tb)
+	self[IntCount] += #tb - 1
+end
+
+--[=[
+	Returns a new DebugRandom object with the same state as the original.
+
+	@within DebugRandom
+	@method Clone
+	@return DebugRandom
+]=]
+function DebugRandom.prototype.Clone(self: DebugRandom): DebugRandom
+	local clone: { [any]: any } = {
+		[Seed] = self[Seed],
+		[NumCount] = self[NumCount],
+		[IntCount] = self[IntCount],
+		[RNG] = self[RNG]:Clone(),
+	}
+	return setmetatable(clone :: {}, DebugRandom.metatable)
+end
+
+--[=[
+	Returns a clone of the DebugRandom's internal Random object.
+
+	@within DebugRandom
+	@method CloneRandom
+	@return Random
+]=]
+function DebugRandom.prototype.CloneRandom(self: DebugRandom): Random
+	return self[RNG]:Clone()
 end
 
 export type DebugRandom = typeof(DebugRandom.interface.new(100))
