@@ -239,16 +239,17 @@ function DebugRandom.prototype.SetSerializedState(self: DebugRandom, data: Seria
 		end
 		self[IntCount] = data.IntCount
 	else
+		local rng = Random.new(data.Seed)
+		for _ = 1, data.NumCount do
+			rng:NextNumber()
+		end
+		for _ = 1, data.IntCount do
+			rng:NextInteger(0, 1)
+		end
 		self[Seed] = data.Seed
 		self[NumCount] = data.NumCount
 		self[IntCount] = data.IntCount
-		self[RNG] = Random.new(data.Seed)
-		for _ = 1, data.NumCount do
-			self[RNG]:NextNumber()
-		end
-		for _ = 1, data.IntCount do
-			self[RNG]:NextInteger(0, 1)
-		end
+		self[RNG] = rng
 	end
 end
 
