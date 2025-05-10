@@ -38,7 +38,7 @@ local LUAU_MIN_PRECISE_INT = -2 ^ 53 + 1
 	- Added [DebugRandom.deserialize]
 	- Added [DebugRandom.fromString]
 	- Added [DebugRandom.isDebugRandom]
-	- Added property [ClassName](DebugRandom#ClassName)
+	- Added property [ClassName](#ClassName)
 	- [DebugRandom:__tostring] yields a serialized result instead of "Random"
 	- Added [DebugRandom:Serialize]
 	- Added [DebugRandom:SetSerializedState]
@@ -70,7 +70,6 @@ DebugRandom.metatable = {
 	__newindex = function(_, prop)
 		error(`{prop} cannot be assigned to`)
 	end,
-	__metatable = "The metatable is locked",
 }
 
 --[=[
@@ -81,7 +80,7 @@ DebugRandom.metatable = {
 	@return boolean
 ]=]
 function DebugRandom.interface.isDebugRandom(obj: any)
-	return type(obj) == "table" and rawget(obj, RNG) ~= nil
+	return type(obj) == "table" and getmetatable(obj) == DebugRandom.metatable
 end
 
 --[=[
