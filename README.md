@@ -8,9 +8,13 @@ Get it here:
 - [Releases](https://github.com/Tim7775/DebugRandom/releases)
 - [Npm (Roblox-ts)](https://www.npmjs.com/package/@rbxts/debug-random)
 
+<!--moonwave-hide-after-this-line-->
+
 ## Documentation
 
 [View Documentation](https://tim7775.github.io/DebugRandom/api/DebugRandom)
+
+<!--moonwave-hide-before-this-line-->
 
 ## Usage
 
